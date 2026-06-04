@@ -1,0 +1,9 @@
+import { createApp } from "./app";
+import { getConfig } from "./config";
+
+const config = getConfig();
+const app = createApp(config);
+
+app.listen(config.port, () => {
+  console.log(`pshr support backend listening on http://localhost:${config.port}`);
+});
