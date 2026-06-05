@@ -1,6 +1,9 @@
 # AI Live Chat Agent
 
-This project contains both the frontend (React + Vite) and the backend (Express + TypeScript) services.
+This project contains both the frontend (React + Vite) and the backend (Express + TypeScript + Primsa ORM) services.
+
+<img width="1408" height="767" alt="Screenshot 2026-06-05 at 8 49 05 AM" src="https://github.com/user-attachments/assets/4bd4d78d-8e4a-4cc4-a3b1-b35be8e4acd1" />
+
 
 ## Setup
 
