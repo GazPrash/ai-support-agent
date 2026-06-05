@@ -1,15 +1,24 @@
 import type { FormEvent, KeyboardEvent, RefObject } from "react";
 import type { ChatMessage } from "../chat/models";
 import type { PromptOption } from "../chat/useConversation";
+import type { RecentConversationSummary } from "../chat/service";
 import { MessageItem } from "./MessageItem";
+
+const SUPPORT_EMAIL =
+  import.meta.env.VITE_SUPPORT_EMAIL ?? "support@pshr.example";
 
 interface ChatPanelProps {
   messages: ChatMessage[];
   input: string;
   isInitializing: boolean;
+  isLoadingConversation: boolean;
   isSending: boolean;
   promptOptions: PromptOption[];
+  recentConversations: RecentConversationSummary[];
+  selectedConversationId: string;
   onInputChange: (nextValue: string) => void;
+  onConversationSelect: (conversationId: string) => void;
+  onStartNewConversation: () => void;
   onSubmit: () => void;
   onPromptSelect: (prompt: string) => void;
   messagesContainerRef: RefObject<HTMLDivElement>;
@@ -23,9 +32,14 @@ export function ChatPanel({
   messages,
   input,
   isInitializing,
+  isLoadingConversation,
   isSending,
   promptOptions,
+  recentConversations,
+  selectedConversationId,
   onInputChange,
+  onConversationSelect,
+  onStartNewConversation,
   onSubmit,
   onPromptSelect,
   messagesContainerRef,
@@ -48,6 +62,10 @@ export function ChatPanel({
       return "Loading";
     }
 
+    if (isLoadingConversation) {
+      return "Switching";
+    }
+
     if (isSending) {
       return "Responding";
     }
@@ -61,6 +79,22 @@ export function ChatPanel({
     }
 
     return "Send";
+  }
+
+  function formatConversationLabel(
+    conversation: RecentConversationSummary,
+  ): string {
+    const timestamp = new Intl.DateTimeFormat(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(new Date(conversation.updatedAt));
+    const preview = conversation.lastMessageText.trim().replace(/\s+/g, " ");
+    const clippedPreview =
+      preview.length > 42 ? `${preview.slice(0, 42).trimEnd()}…` : preview;
+
+    return `${timestamp} · ${clippedPreview}`;
   }
 
   return (
@@ -77,6 +111,38 @@ export function ChatPanel({
       </header>
 
       <div className="chat-body">
+        <div className="conversation-switcher">
+          <label
+            className="conversation-switcher__label"
+            htmlFor="conversationSwitcher"
+          >
+            Conversation history
+          </label>
+          <select
+            id="conversationSwitcher"
+            className="conversation-switcher__select"
+            value={selectedConversationId}
+            disabled={isInitializing || isLoadingConversation || isSending}
+            onChange={(event) => {
+              const nextConversationId = event.target.value;
+
+              if (nextConversationId === "__new__") {
+                onStartNewConversation();
+                return;
+              }
+
+              onConversationSelect(nextConversationId);
+            }}
+          >
+            <option value="__new__">New conversation</option>
+            {recentConversations.map((conversation) => (
+              <option key={conversation.id} value={conversation.id}>
+                {formatConversationLabel(conversation)}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="quick-actions" aria-label="Suggested prompts">
           {promptOptions.map((option) => (
             <button
@@ -91,7 +157,12 @@ export function ChatPanel({
           ))}
         </div>
 
-        <div className="messages" ref={messagesContainerRef} aria-live="polite" aria-label="Conversation">
+        <div
+          className="messages"
+          ref={messagesContainerRef}
+          aria-live="polite"
+          aria-label="Conversation"
+        >
           {messages.map((message) => (
             <MessageItem key={message.id} message={message} />
           ))}
@@ -115,20 +186,39 @@ export function ChatPanel({
         <label className="sr-only" htmlFor="messageInput">
           Type your message
         </label>
-        <textarea
-          id="messageInput"
-          ref={textareaRef}
-          rows={1}
-          maxLength={500}
-          placeholder="Ask a question about orders, shipping, returns..."
-          value={input}
-          disabled={isInitializing || isSending}
-          onChange={(event) => onInputChange(event.target.value)}
-          onKeyDown={handleKeyDown}
-        />
-        <button type="submit" disabled={isInitializing || isSending || !input.trim()}>
-          <span>{getSubmitLabel()}</span>
-        </button>
+        <div className="composer-main">
+          <textarea
+            id="messageInput"
+            ref={textareaRef}
+            rows={1}
+            maxLength={500}
+            placeholder="Ask a question about orders, shipping, returns..."
+            value={input}
+            disabled={isInitializing || isSending}
+            onChange={(event) => onInputChange(event.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          <button
+            className="send-button"
+            type="submit"
+            disabled={isInitializing || isSending || !input.trim()}
+          >
+            <span>{getSubmitLabel()}</span>
+          </button>
+        </div>
+        <div className="composer-footer">
+          <button
+            type="button"
+            className="new-conversation-button"
+            disabled={isInitializing || isLoadingConversation || isSending}
+            onClick={onStartNewConversation}
+          >
+            New conversation
+          </button>
+          <a className="email-support-button" href={`mailto:${SUPPORT_EMAIL}`}>
+            Email Us
+          </a>
+        </div>
       </form>
     </section>
   );

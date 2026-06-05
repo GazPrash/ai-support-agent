@@ -29,32 +29,22 @@ export class LlmResponder {
       })
       .join("\n");
 
-    const response = await this.client.responses.create({
+    const response = await this.client.chat.completions.create({
       model: this.model,
-      input: [
+      messages: [
         {
           role: "system",
-          content: [
-            {
-              type: "input_text",
-              text:
-                "You are pshr Support Agent, a helpful shipping company assistant. Answer clearly and briefly. If the request cannot be answered from a general shipping support perspective, tell the customer to email support.",
-            },
-          ],
+          content:
+            "You are pshr Support Agent, a helpful shipping company assistant. Answer clearly and briefly. If the request cannot be answered from a general shipping support perspective, tell the customer to email support.",
         },
         {
           role: "user",
-          content: [
-            {
-              type: "input_text",
-              text: `Recent conversation:\n${conversationTranscript}\n\nLatest customer message:\n${message}`,
-            },
-          ],
+          content: `Recent conversation:\n${conversationTranscript}\n\nLatest customer message:\n${message}`,
         },
       ],
     });
 
-    const reply = response.output_text?.trim();
+    const reply = response.choices[0]?.message?.content?.trim();
 
     if (!reply) {
       return "We cannot help with that at the moment. Please email us for further assistance.";

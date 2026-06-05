@@ -15,12 +15,21 @@ export default function App() {
         <ChatPanel
           input={controller.input}
           isInitializing={controller.isInitializing}
+          isLoadingConversation={controller.isLoadingConversation}
           isSending={controller.isSending}
           messages={controller.messages}
           promptOptions={controller.promptOptions}
+          recentConversations={controller.recentConversations}
+          selectedConversationId={controller.selectedConversationId}
           messagesContainerRef={controller.messagesContainerRef}
           textareaRef={controller.textareaRef}
           onInputChange={controller.setInput}
+          onConversationSelect={(conversationId) => {
+            void controller.selectConversation(conversationId);
+          }}
+          onStartNewConversation={() => {
+            controller.startNewConversation();
+          }}
           onPromptSelect={(prompt) => {
             void controller.submitPrompt(prompt);
           }}

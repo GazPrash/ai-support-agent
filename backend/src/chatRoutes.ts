@@ -23,6 +23,15 @@ export function createChatRoutes(chatService: ChatService) {
     }
   });
 
+  router.get("/recent", async (_request, response, next) => {
+    try {
+      const conversations = await chatService.getRecentConversations();
+      response.json({ conversations });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   router.get("/:sessionId/messages", async (request, response, next) => {
     try {
       const history = await chatService.getHistory(request.params.sessionId);

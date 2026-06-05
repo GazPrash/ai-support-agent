@@ -1,6 +1,11 @@
 import type { AppConfig } from "./config";
 import { ChatRepository } from "./chatRepository";
-import type { ChatHistory, ChatResponse, MessageRecord } from "./models";
+import type {
+  ChatHistory,
+  ChatResponse,
+  MessageRecord,
+  RecentConversationRecord,
+} from "./models";
 import { RecentConversationCache } from "./recentConversationCache";
 import { ResponderService } from "./responderService";
 
@@ -12,6 +17,7 @@ export class ChatService {
   private readonly cache: RecentConversationCache;
   private readonly responderService: ResponderService;
   private readonly recentHistoryLimit: number;
+  private readonly recentConversationLimit = 10;
 
   public constructor(
     repository: ChatRepository,
@@ -29,7 +35,7 @@ export class ChatService {
    * Loads recent history for a session or returns null when it does not exist.
    */
   public async getHistory(sessionId: string): Promise<ChatHistory | null> {
-    const history = this.repository.getConversationHistory(
+    const history = await this.repository.getConversationHistory(
       sessionId,
       this.recentHistoryLimit,
     );
@@ -43,6 +49,13 @@ export class ChatService {
   }
 
   /**
+   * Returns the most recently updated saved conversations for the UI dropdown.
+   */
+  public async getRecentConversations(): Promise<RecentConversationRecord[]> {
+    return this.repository.getRecentConversations(this.recentConversationLimit);
+  }
+
+  /**
    * Persists the incoming user message, generates the assistant reply, and saves both.
    */
   public async sendMessage(
@@ -50,10 +63,10 @@ export class ChatService {
     sessionId?: string,
   ): Promise<ChatResponse> {
     const existingConversation = sessionId
-      ? this.repository.getConversation(sessionId)
+      ? await this.repository.getConversation(sessionId)
       : null;
     const conversation =
-      existingConversation ?? this.repository.createConversation(sessionId);
+      existingConversation ?? (await this.repository.createConversation(sessionId));
 
     const cachedMessages = this.cache.get(conversation.id);
 
@@ -61,7 +74,7 @@ export class ChatService {
     if (cachedMessages) {
       priorHistory = cachedMessages;
     } else {
-      const history = this.repository.getConversationHistory(
+      const history = await this.repository.getConversationHistory(
         conversation.id,
         this.recentHistoryLimit,
       );
@@ -71,7 +84,7 @@ export class ChatService {
       }
     }
 
-    const userMessage = this.repository.createMessage(
+    const userMessage = await this.repository.createMessage(
       conversation.id,
       "user",
       message,
@@ -86,7 +99,7 @@ export class ChatService {
       historyForResponder,
     );
 
-    const aiMessage = this.repository.createMessage(
+    const aiMessage = await this.repository.createMessage(
       conversation.id,
       "ai",
       reply,

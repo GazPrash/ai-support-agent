@@ -6,6 +6,12 @@ export interface ConversationRecord {
   updatedAt: string;
 }
 
+export interface RecentConversationRecord extends ConversationRecord {
+  lastMessageText: string;
+  lastMessageSender: MessageSender;
+  messageCount: number;
+}
+
 export interface MessageRecord {
   id: string;
   conversationId: string;
