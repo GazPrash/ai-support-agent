@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Conversation {
+  id        String    @id
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @map("updated_at")
+  messages  Message[]
+
+  @@map("conversations")
+  @@index([updatedAt], map: "idx_conversations_updated")
+}
+
+model Message {
+  id             String         @id
+  conversationId String         @map("conversation_id")
+  conversation    Conversation   @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender          String
+  text            String
+  createdAt       DateTime       @map("created_at")
+
+  @@map("messages")
+  @@index([conversationId, createdAt], map: "idx_messages_conversation_created")
+}

@@ -1,42 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
-import { DatabaseSync } from "node:sqlite";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaClient } from "@prisma/client";
 import type { AppConfig } from "./config";
 
 /**
- * Opens the SQLite database and ensures the required tables exist.
+ * Opens the Prisma client against the local SQLite database file.
  */
-export function createDatabase(config: AppConfig) {
+export function createDatabase(config: AppConfig): PrismaClient {
   const absolutePath = path.resolve(config.databasePath);
   fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
 
-  const database = new DatabaseSync(absolutePath);
-  database.exec("PRAGMA journal_mode = WAL;");
-
-  database.exec(`
-    CREATE TABLE IF NOT EXISTS conversations (
-      id TEXT PRIMARY KEY,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS messages (
-      id TEXT PRIMARY KEY,
-      conversation_id TEXT NOT NULL,
-      sender TEXT NOT NULL CHECK(sender IN ('user', 'ai')),
-      text TEXT NOT NULL,
-      created_at TEXT NOT NULL,
-      FOREIGN KEY(conversation_id) REFERENCES conversations(id)
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_messages_conversation_created
-      ON messages(conversation_id, created_at);
-
-    CREATE INDEX IF NOT EXISTS idx_conversations_updated
-      ON conversations(updated_at);
-  `);
-
-  return database;
+  const adapter = new PrismaBetterSqlite3({ url: `file:${absolutePath}` });
+  return new PrismaClient({ adapter });
 }
 
-export type SqliteDatabase = ReturnType<typeof createDatabase>;
+export type PrismaDatabase = PrismaClient;

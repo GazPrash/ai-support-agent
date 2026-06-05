@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import type { ChatMessage, Conversation } from "./models";
+import type { RecentConversationSummary } from "./service";
 import { ConversationService } from "./service";
 import { SessionStorage } from "./storage";
 
@@ -17,12 +18,17 @@ export interface PromptOption {
 export interface ConversationController {
   input: string;
   isInitializing: boolean;
+  isLoadingConversation: boolean;
   isSending: boolean;
+  recentConversations: RecentConversationSummary[];
   messages: ChatMessage[];
   promptOptions: PromptOption[];
   messagesContainerRef: RefObject<HTMLDivElement>;
   textareaRef: RefObject<HTMLTextAreaElement>;
+  selectedConversationId: string;
   setInput: (nextValue: string) => void;
+  selectConversation: (conversationId: string) => Promise<void>;
+  startNewConversation: () => void;
   submitCurrentInput: () => Promise<void>;
   submitPrompt: (prompt: string) => Promise<void>;
 }
@@ -48,22 +54,34 @@ export function useConversation(): ConversationController {
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [input, setInput] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isLoadingConversation, setIsLoadingConversation] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [recentConversations, setRecentConversations] = useState<RecentConversationSummary[]>([]);
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  function applyNewConversation(): void {
+    setInput("");
+    setConversation(service.createNewConversation());
+    textareaRef.current?.focus();
+  }
 
   useEffect(() => {
     let isMounted = true;
 
     async function bootstrapConversation(): Promise<void> {
-      const nextConversation = await service.initializeConversation();
+      const [nextConversation, nextRecentConversations] = await Promise.all([
+        service.initializeConversation(),
+        service.loadRecentConversations(),
+      ]);
 
       if (!isMounted) {
         return;
       }
 
       setConversation(nextConversation);
+      setRecentConversations(nextRecentConversations);
       setIsInitializing(false);
     }
 
@@ -112,21 +130,70 @@ export function useConversation(): ConversationController {
     try {
       const nextConversation = await service.sendMessage(conversation, message);
       setConversation(nextConversation);
+      setRecentConversations(await service.loadRecentConversations());
       textareaRef.current?.focus();
     } finally {
       setIsSending(false);
     }
   }
 
+  async function selectConversation(conversationId: string): Promise<void> {
+    if (isInitializing || isSending || isLoadingConversation) {
+      return;
+    }
+
+    if (conversationId === "__new__") {
+      applyNewConversation();
+      return;
+    }
+
+    setIsLoadingConversation(true);
+    setInput("");
+
+    try {
+      const nextConversation = await service.loadConversation(conversationId);
+
+      if (!nextConversation) {
+        applyNewConversation();
+        return;
+      }
+
+      service.setActiveConversationId(conversationId);
+      setConversation(nextConversation);
+      setRecentConversations(await service.loadRecentConversations());
+    } finally {
+      setIsLoadingConversation(false);
+      textareaRef.current?.focus();
+    }
+  }
+
+  function startNewConversation(): void {
+    if (isInitializing || isSending || isLoadingConversation) {
+      return;
+    }
+
+    applyNewConversation();
+  }
+
+  const selectedConversationId =
+    conversation && !conversation.id.startsWith("local-")
+      ? conversation.id
+      : "__new__";
+
   return {
     input,
     isInitializing,
+    isLoadingConversation,
     isSending,
+    recentConversations,
     messages: conversation?.getMessages() ?? [],
     promptOptions: DEFAULT_PROMPTS,
     messagesContainerRef,
     textareaRef,
+    selectedConversationId,
     setInput,
+    selectConversation,
+    startNewConversation,
     submitCurrentInput: async () => {
       await sendMessage(input);
     },
