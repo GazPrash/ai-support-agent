@@ -28,11 +28,11 @@ export function getConfig(): AppConfig {
   return {
     port: Number(process.env.PORT ?? 3001),
     frontendOrigin: process.env.FRONTEND_ORIGIN ?? "http://localhost:5173",
-    databasePath: process.env.DATABASE_PATH ?? "./backend/data/pshr-support-agent.sqlite",
+    databasePath: process.env.DATABASE_PATH ?? "./data/pshr-support-agent.sqlite",
     responderMode,
     fallbackEmail: process.env.SUPPORT_EMAIL ?? "support@pshr.example",
     openAiApiKey: process.env.OPENAI_API_KEY ?? "",
-    openAiModel: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
+    openAiModel: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
     recentHistoryLimit: Number(process.env.RECENT_HISTORY_LIMIT ?? 20),
     cacheTtlMs: Number(process.env.CACHE_TTL_MS ?? 5 * 60 * 1000),
   };
