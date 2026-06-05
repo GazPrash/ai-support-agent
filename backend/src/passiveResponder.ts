@@ -7,19 +7,19 @@ interface ResponseRule {
 
 const RESPONSE_RULES: ResponseRule[] = [
   {
-    keywords: ["return", "returns"],
+    keywords: ["what is your return policy?"],
     reply:
-      "We can help with return questions. Please share your order number and the item you want to return, and our support team will guide you on the next step.",
+      "Refund requests are reviewed after the item or shipment issue is confirmed. Please share your order details and we will help with the next step.",
   },
   {
-    keywords: ["ship", "shipping", "delivery", "eta"],
+    keywords: ["do you ship to the usa?"],
     reply:
       "Yes, we absolutely ship to the USA and deliver to all valid postal codes across the country. Please share your tracking number to check the status of your delivery.",
   },
   {
-    keywords: ["refund", "refunded"],
+    keywords: ["how long does delivery take?"],
     reply:
-      "Refund requests are reviewed after the item or shipment issue is confirmed. Please share your order details and we will help with the next step.",
+      "Delivery times vary depending on the destination, shipping method selected, and product availability. Most orders are processed promptly and typically arrive within 3–7 business days for standard shipping within the USA",
   },
   {
     keywords: ["damaged", "broken", "claim"],
@@ -46,6 +46,7 @@ export class PassiveResponder {
     _history: MessageRecord[],
   ): Promise<string> {
     const normalizedMessage = message.toLowerCase();
+    console.log(normalizedMessage);
 
     for (const rule of RESPONSE_RULES) {
       const matched = rule.keywords.some((keyword) =>
