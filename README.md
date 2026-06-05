@@ -18,6 +18,22 @@ npm install
 # Install backend dependencies
 npm --prefix backend install
 ```
+## Editing Enviroment variables
+First run
+```bash
+mv .env.example .env
+```
+this will setup your template `.env` file, and then assign env variables in the `.env` file.
+
+1. assign your Open Ai API key via:
+```.env
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+2. choose the model of your liking via (gpt-4o-mini default)
+```.env
+OPENAI_MODEL=gpt-4o-mini
+```
 
 ## Running the Development Servers
 
