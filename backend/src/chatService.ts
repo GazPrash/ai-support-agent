@@ -1,13 +1,13 @@
-import type { AppConfig } from "./config";
-import { ChatRepository } from "./chatRepository";
+import type { AppConfig } from "./config.js";
+import { ChatRepository } from "./chatRepository.js";
 import type {
   ChatHistory,
   ChatResponse,
   MessageRecord,
   RecentConversationRecord,
-} from "./models";
-import { RecentConversationCache } from "./recentConversationCache";
-import { ResponderService } from "./responderService";
+} from "./models.js";
+import { RecentConversationCache } from "./recentConversationCache.js";
+import { ResponderService } from "./responderService.js";
 
 /**
  * Orchestrates conversation loading, persistence, caching, and reply generation.

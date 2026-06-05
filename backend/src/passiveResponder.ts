@@ -1,4 +1,4 @@
-import type { MessageRecord } from "./models";
+import type { MessageRecord } from "./models.js";
 
 interface ResponseRule {
   keywords: string[];

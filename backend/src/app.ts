@@ -1,12 +1,12 @@
 import cors from "cors";
 import express from "express";
-import { ChatRepository } from "./chatRepository";
-import { ChatService } from "./chatService";
-import type { AppConfig } from "./config";
-import { createDatabase } from "./db";
-import { RecentConversationCache } from "./recentConversationCache";
-import { ResponderService } from "./responderService";
-import { createChatRoutes } from "./chatRoutes";
+import { ChatRepository } from "./chatRepository.js";
+import { ChatService } from "./chatService.js";
+import type { AppConfig } from "./config.js";
+import { createDatabase } from "./db.js";
+import { RecentConversationCache } from "./recentConversationCache.js";
+import { ResponderService } from "./responderService.js";
+import { createChatRoutes } from "./chatRoutes.js";
 
 /**
  * Builds the Express application with routes and shared services.

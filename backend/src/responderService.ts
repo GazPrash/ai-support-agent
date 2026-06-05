@@ -1,7 +1,7 @@
-import type { AppConfig } from "./config";
-import type { MessageRecord } from "./models";
-import { LlmResponder } from "./llmResponder";
-import { PassiveResponder } from "./passiveResponder";
+import type { AppConfig } from "./config.js";
+import type { MessageRecord } from "./models.js";
+import { LlmResponder } from "./llmResponder.js";
+import { PassiveResponder } from "./passiveResponder.js";
 
 /**
  * Switches between passive and LLM-backed response generation.

@@ -1,5 +1,5 @@
-import { createApp } from "./app";
-import { getConfig } from "./config";
+import { createApp } from "./app.js";
+import { getConfig } from "./config.js";
 
 const config = getConfig();
 const app = createApp(config);

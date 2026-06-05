@@ -1,12 +1,12 @@
 import crypto from "node:crypto";
-import type { PrismaDatabase } from "./db";
+import type { PrismaDatabase } from "./db.js";
 import type {
   ChatHistory,
   ConversationRecord,
   MessageRecord,
   MessageSender,
   RecentConversationRecord,
-} from "./models";
+} from "./models.js";
 
 /**
  * Encapsulates all database access for conversations and messages.

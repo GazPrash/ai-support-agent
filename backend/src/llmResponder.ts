@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import type { MessageRecord } from "./models";
+import type { MessageRecord } from "./models.js";
 
 /**
  * Calls the LLM provider using recent conversation history as context.
