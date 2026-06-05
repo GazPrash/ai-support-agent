@@ -19,7 +19,7 @@ const RESPONSE_RULES: ResponseRule[] = [
   {
     keywords: ["how long does delivery take?"],
     reply:
-      "Delivery times vary depending on the destination, shipping method selected, and product availability. Most orders are processed promptly and typically arrive within 3–7 business days for standard shipping within the USA",
+      "Delivery times vary depending on the destination, shipping method selected, and product availability. Most orders are processed promptly and typically arrive within 3–7 business days for standard shipping within the USA.",
   },
   {
     keywords: ["damaged", "broken", "claim"],
