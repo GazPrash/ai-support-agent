@@ -1,6 +1,6 @@
 # AI Live Chat Agent
 
-A Chat Support Agent that could be integrated to any website as a pluging for providing ai-assisted customer support, the project has two modes: `1. LLM Assisted` and `2. Passive Mode`, the latter servers as a fallback mode incase of an LLM absence or outage and can be configured with pre-written answers to guide the user in this situation.
+A Chat Support Agent that could be integrated or plugged into to any website for providing ai-assisted customer support, the project has two modes: `1. LLM Assisted` and `2. Passive Mode`, the latter servers as a fallback mode incase of an LLM absence or outage and can be configured with pre-written answers to guide the user in this situation.
 
 The chat is scrollable, and supports the ability to switch between the past 10 conversations or start a new one if they prefer.
 
